@@ -1,4 +1,3 @@
-# from dbm import _KeyType
 import cv2
 import numpy as np
 import cv2.aruco as aruco
@@ -10,24 +9,41 @@ import cv2.aruco as aruco
 VideoCap = False
 capture = cv2.VideoCapture(0)
 
-def findAruco(img,marker_size = 6, total_markers = 250, draw = True):
-    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    key = getattr(aruco,f'DICT_{marker_size}X{marker_size}_{total_markers}')
-    
-    arucoDict = aruco.Dictionary_get(key)
 
-    arucoParam = aruco.DetectorParameters_create()
-    bbox,ids,_ = aruco.detectMarkers(gray, arucoDict, parameters = arucoParam)
-    print(ids)
+dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
+parameters =  cv2.aruco.DetectorParameters()
+detector = cv2.aruco.ArucoDetector(dictionary, parameters)
+
+def findAruco(img,detector):
+    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    markerCorners, markerIds, rejectedCandidates = detector.detectMarkers(gray)
+    # for markerCorner in markerCorners:
+    for i in range(6):
+        # print(markerCorner[0][0])
+        # print(markerCorner[0][2])
+        # pt1 = tuple(markerCorner[0][0])
+        # pt2 = tuple(markerCorner[0][2])
+        pt1 = tuple(markerCorners[i][0][0].astype(int))
+        pt2 = tuple(markerCorners[i][0][2].astype(int))
+        # print(pt1)
+        # print(pt2)
+        cv2.rectangle(img, pt1, pt2, (0,255,0), thickness=2)
+        # Label the rectangle with the corresponding ID
+        text_position = (pt1[0], pt1[1])  # Adjust the position to display text above the rectangle
+        cv2.putText(img, str(markerIds[i]), text_position, cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
+
+        # cv2.rectangle(img, pt1, pt2, color=(0,255,0), thickness=2)
+    # print(markerIds)
+    # print(markerCorners)
     
 while True:
     
     if VideoCap: _,img = capture.read()
     else: 
         img = cv2.imread("sample_image.jpg")
-       # img = cv2.resize(img,(0,0),fx = 0.4, fy = 0.4)
+        img = cv2.resize(img,(0,0),fx = 0.4, fy = 0.4)
         
-    findAruco(img)
+    findAruco(img,detector)
     if cv2.waitKey(1) == 113: #milliseconds
         break
     cv2.imshow("img",img)
