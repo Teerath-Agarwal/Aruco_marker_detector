@@ -1,7 +1,7 @@
-# from dbm import _KeyType
+
 import cv2
 import numpy as np
-import cv2.aruco as aruco
+# import cv2.aruco as aruco
 
 
 
@@ -10,24 +10,25 @@ import cv2.aruco as aruco
 VideoCap = False
 capture = cv2.VideoCapture(0)
 
-def findAruco(img,marker_size = 6, total_markers = 250, draw = True):
-    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    key = getattr(aruco,f'DICT_{marker_size}X{marker_size}_{total_markers}')
-    
-    arucoDict = aruco.Dictionary_get(key)
 
-    arucoParam = aruco.DetectorParameters_create()
-    bbox,ids,_ = aruco.detectMarkers(gray, arucoDict, parameters = arucoParam)
-    print(ids)
+dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
+parameters =  cv2.aruco.DetectorParameters()
+detector = cv2.aruco.ArucoDetector(dictionary, parameters)
+
+def findAruco(img,detector):
+    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    markerCorners, markerIds, rejectedCandidates = detector.detectMarkers(gray)
+    print(markerIds)
+    print(markerCorners)
     
 while True:
     
     if VideoCap: _,img = capture.read()
     else: 
         img = cv2.imread("sample_image.jpg")
-       # img = cv2.resize(img,(0,0),fx = 0.4, fy = 0.4)
+        img = cv2.resize(img,(0,0),fx = 0.4, fy = 0.4)
         
-    findAruco(img)
+    findAruco(img,detector)
     if cv2.waitKey(1) == 113: #milliseconds
         break
     cv2.imshow("img",img)
