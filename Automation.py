@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import cv2.aruco as aruco
 
-VideoCap = False
+VideoCap = True
 capture = cv2.VideoCapture(0)
 
 
@@ -11,8 +11,9 @@ parameters =  cv2.aruco.DetectorParameters()
 detector = cv2.aruco.ArucoDetector(dictionary, parameters)
 
 def findAruco(img,detector):
-    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    markerCorners, markerIds, rejectedCandidates = detector.detectMarkers(gray)
+    # gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    markerCorners, markerIds, rejectedCandidates = detector.detectMarkers(img)
+    # markerCorners, markerIds, rejectedCandidates = detector.detectMarkers(gray)
     for i in range(len(markerIds)):
         pt1 = tuple(markerCorners[i][0][0].astype(int))
         pt2 = tuple(markerCorners[i][0][2].astype(int))
